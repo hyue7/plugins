@@ -192,7 +192,7 @@ bool VideoPlayer::SetBufferingConfig(const std::string &option, int amount) {
     return false;
   }
   LOG_INFO("plusplayer SetBufferingConfig option : %s, amount : %d",
-            option.c_str(), amount);
+           option.c_str(), amount);
   return PlusplayerWrapperProxy::GetInstance().SetBufferConfig(
       plusplayer_, std::pair<std::string, int>(option, amount));
 }
@@ -331,7 +331,11 @@ void VideoPlayer::SendInitialized() {
   if (!is_initialized_ && event_sink_ != nullptr) {
     PlusplayerWrapperProxy &instance = PlusplayerWrapperProxy::GetInstance();
     int64_t duration;
-    if (!instance.GetDuration(plusplayer_, &duration)) {
+    // If stream is static, the bool value of `GetDuration` is 0.
+    // If stream is live, the bool value of `GetDuration` is 1.
+    bool ret = instance.GetDuration(plusplayer_, &duration);
+    if (ret != 0 && ret != 1) {
+      LOG_INFO("GetDuration operation: %s", get_error_message(ret));
       event_sink_->Error("PlusPlayer", "GetDuration operation failed");
       return;
     }
