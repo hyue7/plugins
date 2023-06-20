@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// ignore_for_file: public_member_api_docs
+// ignore_for_file: public_member_api_docs, avoid_print
 
 /// An example of using the plugin, controlling lifecycle and playback of the
 /// video.
@@ -10,7 +10,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player_plusplayer/video_player.dart';
-import 'package:video_player_plusplayer/video_player_platform_interface.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
@@ -25,7 +24,7 @@ class _App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         key: const ValueKey<String>('home_page'),
         appBar: AppBar(
@@ -33,22 +32,11 @@ class _App extends StatelessWidget {
           bottom: const TabBar(
             isScrollable: true,
             tabs: <Widget>[
-              Tab(
-                icon: Icon(Icons.cloud),
-                text: "Mp4",
-              ),
-              Tab(
-                icon: Icon(Icons.cloud),
-                text: "Hls",
-              ),
-              Tab(
-                icon: Icon(Icons.cloud),
-                text: "Dash",
-              ),
-              Tab(
-                icon: Icon(Icons.cloud),
-                text: "Drm",
-              ),
+              Tab(icon: Icon(Icons.cloud), text: 'MP4'),
+              Tab(icon: Icon(Icons.cloud), text: 'HLS'),
+              Tab(icon: Icon(Icons.cloud), text: 'Dash'),
+              Tab(icon: Icon(Icons.cloud), text: 'DRM Widevine'),
+              Tab(icon: Icon(Icons.cloud), text: 'DRM PlayReady'),
             ],
           ),
         ),
@@ -58,6 +46,7 @@ class _App extends StatelessWidget {
             _HlsRomoteVideo(),
             _DashRomoteVideo(),
             _DrmRemoteVideo(),
+            _DrmRemoteVideo2(),
           ],
         ),
       ),
@@ -67,7 +56,7 @@ class _App extends StatelessWidget {
 
 class _HlsRomoteVideo extends StatefulWidget {
   @override
-  _HlsRomoteVideoState createState() => _HlsRomoteVideoState();
+  State<_HlsRomoteVideo> createState() => _HlsRomoteVideoState();
 }
 
 class _HlsRomoteVideoState extends State<_HlsRomoteVideo> {
@@ -77,11 +66,12 @@ class _HlsRomoteVideoState extends State<_HlsRomoteVideo> {
   void initState() {
     super.initState();
     _controller = VideoPlayerController.network(
-      'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
-      videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
-    );
+        'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8');
 
     _controller.addListener(() {
+      if (_controller.value.hasError) {
+        print(_controller.value.errorDescription);
+      }
       setState(() {});
     });
     _controller.setLooping(true);
@@ -112,7 +102,7 @@ class _HlsRomoteVideoState extends State<_HlsRomoteVideo> {
                 alignment: Alignment.bottomCenter,
                 children: <Widget>[
                   VideoPlayer(_controller),
-                  // ClosedCaption(text: _controller.value.caption.text),
+                  ClosedCaption(text: _controller.value.caption.text),
                   _ControlsOverlay(controller: _controller),
                   VideoProgressIndicator(_controller, allowScrubbing: true),
                 ],
@@ -127,7 +117,7 @@ class _HlsRomoteVideoState extends State<_HlsRomoteVideo> {
 
 class _DashRomoteVideo extends StatefulWidget {
   @override
-  _DashRomoteVideoState createState() => _DashRomoteVideoState();
+  State<_DashRomoteVideo> createState() => _DashRomoteVideoState();
 }
 
 class _DashRomoteVideoState extends State<_DashRomoteVideo> {
@@ -137,11 +127,12 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
   void initState() {
     super.initState();
     _controller = VideoPlayerController.network(
-      'https://dash.akamaized.net/dash264/TestCasesUHD/2b/11/MultiRate.mpd',
-      videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
-    );
+        'https://dash.akamaized.net/dash264/TestCasesUHD/2b/11/MultiRate.mpd');
 
     _controller.addListener(() {
+      if (_controller.value.hasError) {
+        print(_controller.value.errorDescription);
+      }
       setState(() {});
     });
     _controller.setLooping(true);
@@ -160,9 +151,7 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
-          Container(
-            padding: const EdgeInsets.only(top: 20.0),
-          ),
+          Container(padding: const EdgeInsets.only(top: 20.0)),
           const Text('With Dash'),
           Container(
             padding: const EdgeInsets.all(20),
@@ -172,6 +161,7 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
                 alignment: Alignment.bottomCenter,
                 children: <Widget>[
                   VideoPlayer(_controller),
+                  ClosedCaption(text: _controller.value.caption.text),
                   _ControlsOverlay(controller: _controller),
                   VideoProgressIndicator(_controller, allowScrubbing: true),
                 ],
@@ -186,21 +176,22 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
 
 class _Mp4RemoteVideo extends StatefulWidget {
   @override
-  Mp4RemoteVideoState createState() => Mp4RemoteVideoState();
+  State<_Mp4RemoteVideo> createState() => _Mp4RemoteVideoState();
 }
 
-class Mp4RemoteVideoState extends State<_Mp4RemoteVideo> {
+class _Mp4RemoteVideoState extends State<_Mp4RemoteVideo> {
   late VideoPlayerController _controller;
 
   @override
   void initState() {
     super.initState();
     _controller = VideoPlayerController.network(
-      'https://media.w3.org/2010/05/bunny/trailer.mp4',
-      videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
-    );
+        'https://media.w3.org/2010/05/bunny/trailer.mp4');
 
     _controller.addListener(() {
+      if (_controller.value.hasError) {
+        print(_controller.value.errorDescription);
+      }
       setState(() {});
     });
     _controller.setLooping(true);
@@ -244,42 +235,34 @@ class Mp4RemoteVideoState extends State<_Mp4RemoteVideo> {
 
 class _DrmRemoteVideo extends StatefulWidget {
   @override
-  _DrmRemoteVideoState createState() => _DrmRemoteVideoState();
+  State<_DrmRemoteVideo> createState() => _DrmRemoteVideoState();
 }
 
 class _DrmRemoteVideoState extends State<_DrmRemoteVideo> {
   late VideoPlayerController _controller;
-  late FFIController ffi_controller;
 
   @override
   void initState() {
     super.initState();
 
-    Future<Uint8List> _getlicense(Uint8List challenge) {
-      return http
-          .post(
+    _controller = VideoPlayerController.network(
+      'https://storage.googleapis.com/wvmedia/cenc/hevc/tears/tears.mpd',
+      drmConfigs: DrmConfigs(
+        type: DrmType.widevine,
+        licenseCallback: (Uint8List challenge) async {
+          final http.Response response = await http.post(
             Uri.parse('https://proxy.uat.widevine.com/proxy'),
             body: challenge,
-          )
-          .then((response) => response.bodyBytes);
-    }
-
-    //If request drm license by app, use [ffi_controller = FFIController(_getlicense)]
-    ffi_controller = FFIController(_getlicense);
-    ffi_controller.FFIgetLicense();
-
-    _controller = VideoPlayerController.network(
-        //widevine
-        'https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd',
-        drmConfigs: {
-          'drmType': 2,
-          // 'licenseServerUrl': 'https://proxy.uat.widevine.com/proxy'
+          );
+          return response.bodyBytes;
         },
-        bufferConfigs: {
-          'buffer_size_in_byte_for_play': 15 * 1024 * 1024
-        });
+      ),
+    );
 
     _controller.addListener(() {
+      if (_controller.value.hasError) {
+        print(_controller.value.errorDescription);
+      }
       setState(() {});
     });
     _controller.setLooping(true);
@@ -299,7 +282,73 @@ class _DrmRemoteVideoState extends State<_DrmRemoteVideo> {
       child: Column(
         children: <Widget>[
           Container(padding: const EdgeInsets.only(top: 20.0)),
-          const Text('Play DRM Remote mp4'),
+          const Text('Play DRM Widevine'),
+          Container(
+            padding: const EdgeInsets.all(20),
+            child: AspectRatio(
+              aspectRatio: _controller.value.aspectRatio,
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: <Widget>[
+                  VideoPlayer(_controller),
+                  ClosedCaption(text: _controller.value.caption.text),
+                  _ControlsOverlay(controller: _controller),
+                  VideoProgressIndicator(_controller, allowScrubbing: true),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DrmRemoteVideo2 extends StatefulWidget {
+  @override
+  State<_DrmRemoteVideo2> createState() => _DrmRemoteVideoState2();
+}
+
+class _DrmRemoteVideoState2 extends State<_DrmRemoteVideo2> {
+  late VideoPlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = VideoPlayerController.network(
+      'https://test.playready.microsoft.com/smoothstreaming/SSWSS720H264PR/SuperSpeedway_720.ism/Manifest',
+      drmConfigs: const DrmConfigs(
+        type: DrmType.playready,
+        licenseServerUrl:
+            'http://test.playready.microsoft.com/service/rightsmanager.asmx',
+      ),
+    );
+
+    _controller.addListener(() {
+      if (_controller.value.hasError) {
+        print(_controller.value.errorDescription);
+      }
+      setState(() {});
+    });
+    _controller.setLooping(true);
+    _controller.initialize().then((_) => setState(() {}));
+    _controller.play();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        children: <Widget>[
+          Container(padding: const EdgeInsets.only(top: 20.0)),
+          const Text('Play DRM PlayReady'),
           Container(
             padding: const EdgeInsets.all(20),
             child: AspectRatio(
@@ -322,15 +371,14 @@ class _DrmRemoteVideoState extends State<_DrmRemoteVideo> {
 }
 
 class _ControlsOverlay extends StatelessWidget {
-  const _ControlsOverlay({Key? key, required this.controller})
-      : super(key: key);
+  const _ControlsOverlay({required this.controller});
 
   static const List<Duration> _exampleCaptionOffsets = <Duration>[
     Duration(seconds: -10),
     Duration(seconds: -3),
     Duration(seconds: -1, milliseconds: -500),
     Duration(milliseconds: -250),
-    Duration(milliseconds: 0),
+    Duration.zero,
     Duration(milliseconds: 250),
     Duration(seconds: 1, milliseconds: 500),
     Duration(seconds: 3),

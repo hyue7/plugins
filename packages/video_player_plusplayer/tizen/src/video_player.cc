@@ -34,21 +34,18 @@ std::string VideoPlayer::GetApplicationId() {
 void VideoPlayer::ParseCreateMessage(const CreateMessage &create_message) {
   uri_ = std::string(*create_message.uri());
   const flutter::EncodableMap *drm_configs = create_message.drm_configs();
-  auto drm_configs_iter = drm_configs->find(flutter::EncodableValue("drmType"));
-  if (drm_configs_iter != drm_configs->end()) {
-    if (std::holds_alternative<int>(
-            drm_configs->at(flutter::EncodableValue("drmType")))) {
-      drm_type_ =
-          std::get<int>(drm_configs->at(flutter::EncodableValue("drmType")));
+  if (drm_configs) {
+    auto iter = drm_configs->find(flutter::EncodableValue("drmType"));
+    if (iter != drm_configs->end()) {
+      if (std::holds_alternative<int32_t>(iter->second)) {
+        drm_type_ = std::get<int32_t>(iter->second);
+      }
     }
-  }
-  drm_configs_iter =
-      drm_configs->find(flutter::EncodableValue("licenseServerUrl"));
-  if (drm_configs_iter != drm_configs->end()) {
-    if (std::holds_alternative<std::string>(
-            drm_configs->at(flutter::EncodableValue("licenseServerUrl")))) {
-      license_url_ = std::get<std::string>(
-          drm_configs->at(flutter::EncodableValue("licenseServerUrl")));
+    iter = drm_configs->find(flutter::EncodableValue("licenseServerUrl"));
+    if (iter != drm_configs->end()) {
+      if (std::holds_alternative<std::string>(iter->second)) {
+        license_url_ = std::get<std::string>(iter->second);
+      }
     }
   }
 }

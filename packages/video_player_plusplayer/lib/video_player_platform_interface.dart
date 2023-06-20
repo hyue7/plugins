@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
+import 'src/drm_configs.dart';
 import 'src/method_channel_video_player.dart';
 
 /// The interface that implementations of video_player must implement.
@@ -131,14 +132,15 @@ class DataSource {
   ///
   /// The [package] argument must be non-null when the asset comes from a
   /// package and null otherwise.
-  DataSource(
-      {required this.sourceType,
-      this.uri,
-      this.formatHint,
-      this.asset,
-      this.package,
-      this.httpHeaders = const <String, String>{},
-      this.drmConfigs = const <String, String>{}});
+  DataSource({
+    required this.sourceType,
+    this.uri,
+    this.formatHint,
+    this.asset,
+    this.package,
+    this.httpHeaders = const <String, String>{},
+    this.drmConfigs,
+  });
 
   /// The way in which the video was originally loaded.
   ///
@@ -168,8 +170,8 @@ class DataSource {
   /// [DataSourceType.asset] videos.
   final String? package;
 
-  ///Drm configs used for the play drm content.
-  Map<String, Object> drmConfigs;
+  /// Configurations for playing DRM content.
+  DrmConfigs? drmConfigs;
 }
 
 /// The way in which the video was originally loaded.
