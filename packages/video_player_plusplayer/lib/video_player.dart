@@ -716,7 +716,7 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
   /// [Caption].
   Caption _getCaptionAt(Duration position) {
     if (_closedCaptionFile == null) {
-      return Caption.none;
+      return value.caption;
     }
 
     final Duration delayedPosition = position + value.captionOffset;

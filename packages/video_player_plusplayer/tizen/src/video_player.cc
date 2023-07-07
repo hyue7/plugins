@@ -94,7 +94,32 @@ void VideoPlayer::RegisterListener() {
   listener_.playing_callback = OnPlaying;
   listener_.prepared_callback = OnPrepared;
   listener_.seek_completed_callback = OnSeekCompleted;
+  listener_.subtitle_data_callback = OnSubtitleUpdate;
   instance.RegisterListener(plusplayer_, &listener_, this);
+}
+
+void VideoPlayer::OnSubtitleUpdate(char *data, const int size,
+                                   const plusplayer::SubtitleType &type,
+                                   const uint64_t duration, void *user_data) {
+  LOG_INFO("[VideoPlayer] duration: %lld, text: %s", duration, data);
+
+
+  VideoPlayer *player = static_cast<VideoPlayer *>(user_data);
+  player->SendSubtitleUpdate(duration, std::string(data));
+}
+
+void VideoPlayer::SendSubtitleUpdate(int64_t duration,
+                                     const std::string &text) {
+  if (event_sink_) {
+    flutter::EncodableMap result = {
+        {flutter::EncodableValue("event"),
+         flutter::EncodableValue("subtitleUpdate")},
+        {flutter::EncodableValue("duration"),
+         flutter::EncodableValue(duration)},
+        {flutter::EncodableValue("text"), flutter::EncodableValue(text)},
+    };
+    event_sink_->Success(flutter::EncodableValue(result));
+  }
 }
 
 bool VideoPlayer::SetDisplay(FlutterDesktopPluginRegistrarRef registrar_ref) {

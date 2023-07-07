@@ -62,6 +62,7 @@ class VideoPlayer {
   void ParseCreateMessage(const CreateMessage &create_message);
   void RegisterListener();
   bool SetDisplay(FlutterDesktopPluginRegistrarRef registrar_ref);
+  void SendSubtitleUpdate(int64_t duration, const std::string &text);
 
   static void OnPrepared(bool ret, void *data);
   static void OnBuffering(int percent, void *data);
@@ -77,6 +78,9 @@ class VideoPlayer {
   static void OnDrmInitData(int *drmhandle, unsigned int len,
                             unsigned char *psshdata, plusplayer::TrackType type,
                             void *user_data);
+  static void OnSubtitleUpdate(char* data, const int size,
+                              const plusplayer::SubtitleType& type, const uint64_t duration,
+                              void* user_data);                          
   std::unique_ptr<flutter::EventChannel<flutter::EncodableValue>>
       event_channel_;
   std::unique_ptr<flutter::EventSink<flutter::EncodableValue>> event_sink_;

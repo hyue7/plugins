@@ -130,6 +130,7 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
           return VideoEvent(
             eventType: VideoEventType.subtitleUpdate,
             text: map['text']! as String,
+            duration: Duration(milliseconds: map['duration']! as int),
           );
         default:
           return VideoEvent(eventType: VideoEventType.unknown);
