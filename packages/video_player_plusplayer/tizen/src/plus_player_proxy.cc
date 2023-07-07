@@ -91,8 +91,10 @@ PlusplayerWrapperProxy::PlusplayerWrapperProxy() {
     std::string lib_path = app_res_path;
     if (version == "6.0") {
       lib_path += "/video_player_plusplayer/libplus_player_wrapper_60.so";
-    } else {
+    } else if (version == "6.5"){
       lib_path += "/video_player_plusplayer/libplus_player_wrapper_65.so";
+    } else {
+      lib_path += "/video_player_plusplayer/libplus_player_wrapper_70.so";
     }
     plus_player_hander_ = dlopen(lib_path.c_str(), RTLD_LAZY);
     free(app_res_path);

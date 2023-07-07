@@ -12,6 +12,9 @@
 #include <memory>
 #include <string>
 #include <vector>
+// #include <list>
+// #include "boost/boost/any.hpp"
+// #include "boost/boost/core/noncopyable.hpp"
 
 #define PLUSPLAYER_ERROR_CLASS TIZEN_ERROR_PLAYER | 0x20
 
@@ -247,6 +250,69 @@ struct Property {
 };
 }  // namespace drm
 
+enum SubtitleAttrType {
+  kSubAttrRegionXPos = 0,            // float type
+  kSubAttrRegionYPos,                // float type
+  kSubAttrRegionWidth,               // float type
+  kSubAttrRegionHeight,              // float type
+  kSubAttrWindowXPadding,            // float type
+  kSubAttrWindowYPadding,            // float type
+  kSubAttrWindowLeftMargin,          // int type
+  kSubAttrWindowRightMargin,         // int type
+  kSubAttrWindowTopMargin,           // int type
+  kSubAttrWindowBottomMargin,        // int type
+  kSubAttrWindowBgColor,             // int type
+  kSubAttrWindowOpacity,             // float type
+  kSubAttrWindowShowBg,              // how to show window background, uint type
+  kSubAttrFontFamily,                // char* type
+  kSubAttrFontSize,                  // float type
+  kSubAttrFontWeight,                // int type
+  kSubAttrFontStyle,                 // int type
+  kSubAttrFontColor,                 // int type
+  kSubAttrFontBgColor,               // int type
+  kSubAttrFontOpacity,               // float type
+  kSubAttrFontBgOpacity,             // float type
+  kSubAttrFontTextOutlineColor,      // int type
+  kSubAttrFontTextOutlineThickness,  // int type
+  kSubAttrFontTextOutlineBlurRadius,  // int type
+  kSubAttrFontVerticalAlign,          // int type
+  kSubAttrFontHorizontalAlign,        // int type
+  kSubAttrRawSubtitle,                // char* type
+  kSubAttrWebvttCueLine,              // float type
+  kSubAttrWebvttCueLineNum,           // int type
+  kSubAttrWebvttCueLineAlign,         // int type
+  kSubAttrWebvttCueAlign,             // int type
+  kSubAttrWebvttCueSize,              // float type
+  kSubAttrWebvttCuePosition,          // float type
+  kSubAttrWebvttCuePositionAlign,     // int type
+  kSubAttrWebvttCueVertical,          // int type
+  kSubAttrTimestamp,
+  kSubAttrExtsubIndex,  // File index of external subtitle
+  kSubAttrTypeNone
+};
+
+enum class SubtitleType { kText, kPicture, kInvalid };
+
+// struct SubtitleAttr {
+//   explicit SubtitleAttr(const SubtitleAttrType _type,
+//                         const uint32_t _start_time, const uint32_t
+//                         _stop_time, const boost::any _value, const int
+//                         _extsub_index)
+//       : type(_type),
+//         start_time(_start_time),
+//         stop_time(_stop_time),
+//         value(_value),
+//         extsub_index(_extsub_index) {}
+//   const SubtitleAttrType type = kSubAttrTypeNone;
+//   const uint32_t start_time = std::numeric_limits<uint32_t>::max();
+//   const uint32_t stop_time = std::numeric_limits<uint32_t>::max();
+//   const boost::any value;
+//   const int extsub_index = -1;
+// };
+
+// using SubtitleAttrList = std::list<SubtitleAttr>;
+// using SubtitleAttrListPtr = std::unique_ptr<SubtitleAttrList>;
+
 }  // namespace plusplayer
 
 struct Plusplayer;
@@ -284,6 +350,10 @@ typedef void (*OnPlayerCueOutContEvent)(const char* CueOutContData,
 typedef void (*OnPlayerChangeSourceDone)(bool ret, void* user_data);
 typedef void (*OnPlayerStateChangedToPlaying)(void* user_data);
 typedef void (*OnPlayerDrmType)(plusplayer::drm::Type drmtype, void* user_data);
+typedef void (*OnPlayerSubtitleData)(char* data,
+                                     const int size,
+                                     const plusplayer::SubtitleType& type,
+                                     const uint64_t duration, void* user_data);
 
 struct PlusplayerListener {
   OnPlayerPrepared prepared_callback{nullptr};
@@ -305,6 +375,7 @@ struct PlusplayerListener {
   OnPlayerChangeSourceDone change_source_done_callback{nullptr};
   OnPlayerStateChangedToPlaying state_changed_to_playing_callback{nullptr};
   OnPlayerDrmType drm_type_callback{nullptr};
+  OnPlayerSubtitleData subtitle_data_callback{nullptr};
 };
 
 class PlusplayerWrapperProxy {
